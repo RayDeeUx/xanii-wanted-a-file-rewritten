@@ -1,4 +1,3 @@
-#include <Geode/Geode.hpp>
 #include <Geode/modify/CommentCell.hpp>
 #include <Geode/utils/web.hpp>
 #include <cctype>
@@ -10,8 +9,8 @@ using namespace geode::prelude;
 bool ytdownload = false;
 bool twitchdownload = false;
 
-std::set<std::string> YouTubers;
-std::set<std::string> Streamers;
+std::set<std::string> youtubeList;
+std::set<std::string> streamersList;
 EventListener<web::WebTask> m_listener;
 EventListener<web::WebTask> m_listener1;
 
@@ -20,52 +19,50 @@ void downloadYT() {
 	if (!ytdownload) {
 
 		m_listener.bind([] (web::WebTask::Event* e) {
-            if (web::WebResponse* res = e->getValue()) {
+			if (web::WebResponse* res = e->getValue()) {
 				auto data = res->string().unwrapOr("eee"); // wowzers found whats printing
 				log::debug("Attempting to download YouTuber List..");
 				std::istringstream iss(data);
 				std::string temp_string;
 
 				while (iss >> temp_string) {
-					YouTubers.insert(temp_string);
+					youtubeList.insert(temp_string);
 				}
 				ytdownload = true;
-				log::debug("Download Complete [{} Found].", YouTubers.size());
+				log::debug("Download Complete [{} Found].", youtubeList.size());
 
-            } else if (e->isCancelled()) {
-                log::info("Failed to fetch file from GitHub.");
-            }
-        });
+			} else if (e->isCancelled()) {
+				log::info("Failed to fetch file from GitHub.");
+			}
+		});
 
-        auto req = web::WebRequest();
-        m_listener.setFilter(req.get("https://raw.githubusercontent.com/LXanii/GD-YouTubers/main/names.txt"));
+		auto req = web::WebRequest();
+			m_listener.setFilter(req.get("https://raw.githubusercontent.com/LXanii/GD-youtubeList/main/names.txt"));
 		}
 	}
 
 void downloadTwitch() {
-	
 	if (!twitchdownload) {
-
 		m_listener1.bind([] (web::WebTask::Event* e) {
-            if (web::WebResponse* res = e->getValue()) {
+			if (web::WebResponse* res = e->getValue()) {
 				auto data = res->string().unwrapOr("eee"); // wowzers found whats printing
 				log::debug("Attempting to download Streamer List..");
 				std::istringstream iss(data);
 				std::string temp_string;
 
 				while (iss >> temp_string) {
-					Streamers.insert(temp_string);
+					streamersList.insert(temp_string);
 				}
 				twitchdownload = true;
-				log::debug("Download Complete [{} Found].", Streamers.size());
+				log::debug("Download Complete [{} Found].", streamersList.size());
 
-            } else if (e->isCancelled()) {
-                log::info("Failed to fetch file from GitHub.");
-            }
-        });
+			} else if (e->isCancelled()) {
+				log::info("Failed to fetch file from GitHub.");
+			}
+		});
 
-        auto req = web::WebRequest();
-        m_listener1.setFilter(req.get("https://raw.githubusercontent.com/LXanii/GD-YouTubers/main/streamers.txt"));
+		auto req = web::WebRequest();
+		m_listener1.setFilter(req.get("https://raw.githubusercontent.com/LXanii/GD-youtubeList/main/streamers.txt"));
 		}
 	}
 
@@ -89,7 +86,7 @@ class $modify(CommentCell) {
 		
 		std::string username = m_comment->m_userName;
 
-		for (const auto& names : YouTubers) {
+		for (const auto& names : youtubeList) {
 			std::string lower_names(names.begin(), names.end());
 			std::string lower_player_name(username.begin(), username.end());
 			for (char &c : lower_names) {
